@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  A simple exercise of producing events to sqs and consuming by group id
+
+Globals:
+  Function:
+    Runtime: nodejs14.x
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        SQS_QUEUE_URL: !Ref Queue
+
+Resources:
+  Queue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-queue.fifo
+      FifoQueue: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 2
+
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Sub ${AWS::StackName}-dead-letter-queue.fifo
+      FifoQueue: true
+
+  ProducerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-producer
+      Description: Lambda that produces messages to SQS
+      CodeUri: dist
+      Handler: producer.produce
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt Queue.QueueName
+
+  ConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-consumer
+      Description: Lambda to be invoked by the SQS Queue
+      CodeUri: dist
+      Handler: consumer.consume
+      ReservedConcurrentExecutions: 2
+      Events:
+        SQSEvent:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt Queue.Arn
+            BatchSize: 3

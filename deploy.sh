@@ -13,7 +13,7 @@ echo '...cleaning distribution folder'
 rm -rf dist && mkdir dist
 
 echo '...building production source code node_modules'
-rm -rf node_modules && npm install && tsc
+rm -rf node_modules && yarn install && tsc
 
 sam package --output-template-file packaged.yaml --template-file cloudformation.yaml --s3-bucket ${S3_BUCKET}
 sam deploy --template-file packaged.yaml --capabilities CAPABILITY_NAMED_IAM --stack-name ${STACK_NAME}

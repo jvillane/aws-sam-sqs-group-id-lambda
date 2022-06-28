@@ -20,7 +20,7 @@ Resources:
       FifoQueue: true
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
-        maxReceiveCount: 2
+        maxReceiveCount: 3
 
   DeadLetterQueue:
     Type: AWS::SQS::Queue
@@ -33,7 +33,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${AWS::StackName}-producer
       Description: Lambda that produces messages to SQS
-      CodeUri: dist
+      CodeUri: dist/producer
       Handler: producer.produce
       Policies:
         - SQSSendMessagePolicy:
@@ -44,7 +44,7 @@ Resources:
     Properties:
       FunctionName: !Sub ${AWS::StackName}-consumer
       Description: Lambda to be invoked by the SQS Queue
-      CodeUri: dist
+      CodeUri: dist/consumer
       Handler: consumer.consume
       ReservedConcurrentExecutions: 2
       Events:

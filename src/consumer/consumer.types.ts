@@ -1,8 +1,8 @@
-import {APIGatewayEventRequestContext, Callback} from "aws-lambda";
+import {APIGatewayEventRequestContext, Callback, SQSEvent} from "aws-lambda";
 
-interface ConsumerEvent {
+export interface ConsumerEvent {
   groupId: string
   value: number
 }
 
-export type ConsumerHandler = (event: ConsumerEvent, context: APIGatewayEventRequestContext, callback: Callback<void>) => void;
+export type ConsumerHandler = (event: SQSEvent, context: APIGatewayEventRequestContext, callback: Callback<void>) => void;

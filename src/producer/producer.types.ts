@@ -1,3 +1,8 @@
 import {APIGatewayEventRequestContext, Callback} from "aws-lambda";
 
-export type ProducerHandler = (event: { count: number }, context: APIGatewayEventRequestContext, callback: Callback<void>) => Promise<void>;
+interface ProducerEvent {
+  count: number
+  id: number
+}
+
+export type ProducerHandler = (event: ProducerEvent, context: APIGatewayEventRequestContext, callback: Callback<void>) => Promise<void>;
